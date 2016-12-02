@@ -27,6 +27,7 @@ module.exports = function(compiler, options) {
 		function goNext() {
 			if(!context.options.serverSideRender) return next();
 			shared.ready(function() {
+				if(!res.locals) res.locals = {};
 				res.locals.webpackStats = context.webpackStats;
 				next();
 			}, req);
