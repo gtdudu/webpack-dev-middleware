@@ -1,3 +1,20 @@
+# why the fork ? 
+
+When trying to work with ssr and hapi (instead of express), we get an error : "cannot read property webpackStats of undefined".
+This is because hapi request.raw.res doesn't have a locals property.
+The "simple fix" is to create it in middleware.js (line 30)
+
+```
+function goNext() {
+	if(!context.options.serverSideRender) return next();
+	shared.ready(function() {
+		if(!res.locals) res.locals = {};
+		res.locals.webpackStats = context.webpackStats;
+		next();
+	}, req);
+}
+```
+
 # webpack-dev-middleware
 
 [![npm][npm]][npm-url]
