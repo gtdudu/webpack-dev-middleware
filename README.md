@@ -1,5 +1,6 @@
-# why the fork ? 
+# why the fork ?
 
+## cannot read webpackStats of undefined
 When trying to work with ssr and hapi (instead of express), we get an error : "cannot read property webpackStats of undefined".
 This is because hapi request.raw.res doesn't have a locals property.
 The "simple fix" is to create it in middleware.js (line 30)
@@ -14,6 +15,27 @@ function goNext() {
 	}, req);
 }
 ```
+
+## usage with react router and server side rendering
+If you try to define nested routes the application will crash on page refresh.
+It seems that webpack-dev-middleware will serve the bundle.js to an incorrect path.
+
+getFilenameFromUrl.js (line 22)
+```
+// strip localPrefix from the start of url
+if(urlObject.pathname.indexOf(localPrefix.pathname) === 0) {
+  filename = urlObject.pathname.substr(localPrefix.pathname.length);
+}
+```
+
+Our publicPath currently is '/' so to fix this we can do
+```
+if(urlObject.pathname.indexOf(localPrefix.pathname) !== -1) {
+  var len = urlObject.pathname.lastIndexOf(localPrefix.pathname);
+  filename = urlObject.pathname.substr(len);
+}
+```
+Pretty dirty but works for now..
 
 # webpack-dev-middleware
 
@@ -84,7 +106,7 @@ app.use(webpackMiddleware(webpack({
 	publicPath: "/assets/",
 	// public path to bind the middleware to
 	// use the same as in webpack
-	
+
 	index: "index.html",
 	// the index path for web server
 
